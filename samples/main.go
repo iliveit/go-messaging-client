@@ -15,8 +15,8 @@ func main() {
 	fmt.Println("Sample Go App for Messaging API")
 	
 	apiConfig := messagingapi.APIConfig{
-		Endpoint: "api endpoint here",
-		AccessToken: "your access token here",
+		Endpoint: "api endpoint",
+		AccessToken: "your access token",
 	}
 	
 	var err error
@@ -30,6 +30,7 @@ func main() {
 	//SampleSubmitSMS()
 	//SampleSubmitMMS()
 	//SampleSubmitEmail()
+	SampleGetMessageStatus()
 	
 	// Sample server to handle incoming SMS
 	//http.HandleFunc("/", HandleIncomingSMS)
@@ -162,6 +163,25 @@ func SampleSubmitEmail() {
 	} else {
 		fmt.Println("Success")
 		fmt.Println(result.MessageResult.MessageID)
+	}
+}
+
+// SampleGetMessageStatus shows how to retrieve the status of a message
+func SampleGetMessageStatus() {
+	
+	result, err := api.GetMessageStatus("1-90aaf0b4-65d2-4556-7ec1-a134afdf6e76")
+	if err != nil {
+		fmt.Println("Error: " + err.Error())
+		os.Exit(1)
+	}
+	// Handle the result
+	if result.StatusCode != messagingapi.APIResultStatusesOk {
+		fmt.Println(result.StatusDescription)
+	} else {
+		fmt.Println("Success")
+		fmt.Println(result.MessageStatus.Campaign)
+		fmt.Println(result.MessageStatus.BuildStatus)
+		fmt.Println(result.MessageStatus)
 	}
 }
 

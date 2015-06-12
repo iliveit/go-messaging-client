@@ -109,3 +109,34 @@ func (api *MessagingAPI) Create(message NewMessage) (APIResult, error) {
 	return result, nil
 }
 
+// GetMessageStatus makes a simple GET call to the API to get the status of a message
+func (api *MessagingAPI) GetMessageStatus(message_id string) (APIResult, error) {
+	result := APIResult{}
+	
+	if message_id == "" {
+		return result, errors.New("Message ID must not be blank")
+	}
+	
+	r, err :=  NewAPIWebRequest(api.config, "message/" + message_id + "/status", "GET", "")
+	if err != nil {
+		return result, err
+	}
+	
+	responseBody, statusCode, err := r.Execute()
+	if err != nil {
+		result = HandleErrorResponse(result, statusCode, err)
+	} else {
+		
+		var status StatusResult
+		err = json.Unmarshal([]byte(responseBody), &status)
+		if err != nil {
+			result.StatusCode = APIResultStatusesError;
+			result.StatusDescription = "Unable to unmarshal result from API";
+		}
+		result.MessageStatus = status
+		result.StatusCode = APIResultStatusesOk;
+		result.StatusDescription = "Ok";
+	}
+	return result, nil
+}
+

@@ -2,7 +2,7 @@
 package messagingapi
 
 import (
-	
+	"time"	
 )
 
 // MessagingAPI is the primary object to work with the API
@@ -53,8 +53,8 @@ type APIResult struct {
 	StatusCode uint32
 	StatusDescription string
 	MessageResult NewMessageResult
+	MessageStatus StatusResult
 	//ScrubResult ScrubResult;
-	//MessageStatus MessageStatus;
 	//ArchivedMessage ArchivedMessage;
 }
 
@@ -137,6 +137,33 @@ type IncomingSMS struct {
     RetryCount uint32
 }
 
+// StatusResult is returned from the API when message/:id/status
+// is called
+type StatusResult struct {
+	Type                       string    `json:"type"`
+	Campaign                   string    `json:"campaign,omitempty"`
+	Template                   uint32    `json:"template"`
+	Network                    string    `json:"network"`
+	MSISDN                     string    `json:"msisdn"`
+	Email                      string    `json:"email"`
+	MVNO                       uint32    `json:"mvno"`
+	DateReceived               time.Time `json:"date_received"`
+	BuildStatus                uint32    `json:"build_status,omitempty"`
+	BuildStatusDescription     string    `json:"build_status_description,omitempty"`
+	BuildTimestamp             time.Time `json:"build_timestamp,omitempty"`
+	ArchiveStatus              uint32    `json:"archive_status,omitempty"`
+	ArchiveStatusDescription   string    `json:"archive_status_description,omitempty"`
+	ArchiveTimestamp           time.Time `json:"archive_timestamp,omitempty"`
+	SubmitStatus               uint32    `json:"submit_status,omitempty"`
+	SubmitStatusDescription    string    `json:"submit_status_description,omitempty"`
+	SubmitTimestamp            time.Time `json:"submit_timestamp,omitempty"`
+	SentStatus                 uint32    `json:"sent_status,omitempty"`
+	SentStatusDescription      string    `json:"sent_status_description,omitempty"`
+	SentTimestamp              time.Time `json:"sent_timestamp,omitempty"`
+	DeliveredStatus            uint32    `json:"delivered_status,omitempty"`
+	DeliveredStatusDescription string    `json:"delivered_status_description,omitempty"`
+	DeliveredTimestamp         time.Time `json:"delivered_timestamp,omitempty"`
+}
 
 const (
 	APIResultStatusesOk = 0
@@ -159,5 +186,44 @@ const (
 	MMSContentTypeImage = "image"
 	MMSContentTypeVideo = "video"
 	MMSContentTypeAudio = "audio"
-	
+)
+
+// Message Status Types
+const (
+	// Received by scheduler
+	MessageStatusReceived = 1 + iota
+	// Submitted to Beam
+	MessageStatusSubmitted
+	// Submission to Beam failed
+	MessageStatusSubmitFailed
+	// Archived
+	MessageArchived
+	// Archived because of network action
+	MessageArchivedNetworkRule
+	// Invalid JSON output
+	MessageStatusFailedMarshal
+	// Failed due to bad JSON
+	MessageStatusFailedUnmarshal
+	// When the scrub service is unavailable
+	MessageStatusScrubUnavailable
+	// Status when the MSISDN is not MMS capable
+	MessageStatusNotMMS
+	// When failed to build message from a template
+	MessageStatusTemplateError
+	// No network found for this message
+	MessageStatusNoNetwork
+	// Error submitting to renderfarm
+	MessageStatusRenderFarmFailed
+	// Sent to for rendering
+	MessageStatusRenderFarmSent
+	// Success render
+	MessageStatusRenderFarmSuccess
+	// Unable to read file
+	MessageStatusReadFileFailed
+	// Invalid data received
+	MessageInvalid
+	// No handset information available for MSISDN
+	MessageStatusNoHandsetInfo
+	// MSISDN is not provisioned for MMS
+	MessageStatusNotMMSProvisioned
 )
