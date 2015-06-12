@@ -15,8 +15,8 @@ func main() {
 	fmt.Println("Sample Go App for Messaging API")
 	
 	apiConfig := messagingapi.APIConfig{
-		Endpoint: "http://127.0.0.1:9000",
-		AccessToken: "testtoken",
+		Endpoint: "api endpoint here",
+		AccessToken: "your access token here",
 	}
 	
 	var err error
