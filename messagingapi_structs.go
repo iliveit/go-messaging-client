@@ -39,6 +39,10 @@ type NewMessage struct {
 	PostbackReplyUrl string
 	// A URL where status updates for this message should be POSTed (optional)
 	PostbackStatusUrl string
+	// What updates you want to receive in the postback
+	// Possible values of "build", "submit", "archive", "sent", "delivery"
+	// comma delimited - i.e. "build,submit,delivery"
+	PostbackStatusTypes string
 	
 	Error string
 }
@@ -142,6 +146,7 @@ type IncomingSMS struct {
 type StatusResult struct {
 	Type                       string    `json:"type"`
 	Campaign                   string    `json:"campaign,omitempty"`
+	MessageID                  string    `json:"message_id"`
 	Template                   uint32    `json:"template"`
 	Network                    string    `json:"network"`
 	MSISDN                     string    `json:"msisdn"`
@@ -163,6 +168,7 @@ type StatusResult struct {
 	DeliveredStatus            uint32    `json:"delivered_status,omitempty"`
 	DeliveredStatusDescription string    `json:"delivered_status_description,omitempty"`
 	DeliveredTimestamp         time.Time `json:"delivered_timestamp,omitempty"`
+	PostbackType               string    `json:"postback_type,omitempty"`
 }
 
 const (
