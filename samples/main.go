@@ -4,6 +4,7 @@ package main
 import(
 	"os"
 	"fmt"
+	//"time"
 	"net/http"
 	"encoding/json"
 	"github.com/iliveit/go-messaging-client"
@@ -27,14 +28,15 @@ func main() {
 	} 
 	
 	//SamplePing()
-	//SampleSubmitSMS()
+	SampleSubmitSMS()
 	//SampleSubmitMMS()
 	//SampleSubmitEmail()
-	SampleGetMessageStatus()
+	//SampleGetMessageStatus()
 	
 	// Sample server to handle incoming SMS
-	//http.HandleFunc("/", HandleIncomingSMS)
-	//http.ListenAndServe(":9001", nil)
+	http.HandleFunc("/", HandleIncomingSMS)
+	http.HandleFunc("/status", HandleStatusUpdates)
+	http.ListenAndServe(":9001", nil)
 	
 }
 
@@ -59,16 +61,18 @@ func SampleSubmitSMS() {
 	// Create the wrapper object
 	msg := messagingapi.NewMessage{
 		Action: messagingapi.APIActionTypesSubmitSMS,
-		MVNOID: 2,
+		MVNOID: 4,
 		Campaign: "GoClientTest",
 		PostbackReplyUrl: "http://127.0.0.1:9001",
+		PostbackStatusUrl: "http://127.0.0.1:9001/status",
+		PostbackStatusTypes: "submit,archive,sent,delivery",
 	}
 	// Create the message data
 	msgData := messagingapi.SubmitSMSMessageData{
 		Network: "local_smpp",
 		MSISDN: []string{"27760913077"},
 		Message: "This is my SMS text",
-		ExtraDigits: "00015",
+		ExtraDigits: "00123",
 	}
 	msg.Data = msgData
 	// Send the create request
@@ -83,6 +87,7 @@ func SampleSubmitSMS() {
 	} else {
 		fmt.Println("Success")
 		fmt.Println(result.MessageResult.MessageID)
+		fmt.Println("Sent with ExtraDigits: %s", msgData.ExtraDigits)
 	}
 }
 
@@ -93,6 +98,8 @@ func SampleSubmitMMS() {
 		Action: messagingapi.APIActionTypesSubmitMMS,
 		MVNOID: 2,
 		Campaign: "GoClientTest",
+		PostbackStatusUrl: "http://127.0.0.1:9001/status",
+		PostbackStatusTypes: "submit,sent,delivery,archive",
 	}
 	// Create the message data
 	msgData := messagingapi.SubmitMMSMessageData{
@@ -140,6 +147,8 @@ func SampleSubmitEmail() {
 		Action: messagingapi.APIActionTypesSubmitEmail,
 		MVNOID: 2,
 		Campaign: "GoClientTest",
+		PostbackStatusUrl: "http://127.0.0.1:9001/status",
+		PostbackStatusTypes: "build,submit,sent,delivery,archive",
 	}
 	// Create the message data
 	msgData := messagingapi.SubmitEmailMessageData{
@@ -195,6 +204,9 @@ func HandleIncomingSMS(w http.ResponseWriter, r *http.Request) {
         fmt.Println("Unable to get POST body: " + err.Error())
         return
     }
+
+	byteString, _ := json.Marshal(incoming)
+	fmt.Println(string(byteString))
     
 	fmt.Println("MessageID: " + incoming.MessageId)
 	fmt.Println("SourceMSISDN: " + incoming.SourceMSISDN)
@@ -202,6 +214,35 @@ func HandleIncomingSMS(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Message: " + incoming.Message)
 	fmt.Println("ExtraDigits: " + incoming.ExtraDigits)
 	
+	// You must respond with a status code of 200 otherwise the API will keep retrying
+	// the message to this endpoint
+	w.Write([]byte("Ok"))
+}
+
+
+// HandleIncomingSMS receives POSTs from the API for status updates
+func HandleStatusUpdates(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	
+    var status messagingapi.StatusResult
+    err := decoder.Decode(&status)
+    if err != nil {
+        fmt.Println("Unable to get POST body: " + err.Error())
+        return
+    }
+
+	byteString, _ := json.MarshalIndent(status, "", " ")
+	fmt.Println(string(byteString))
+	fmt.Println("\n\n\n")
+    
+    /*
+	fmt.Println("MessageID: " + incoming.MessageId)
+	fmt.Println("SourceMSISDN: " + incoming.SourceMSISDN)
+	fmt.Println("DestinationMSISDN: " + incoming.DestinationMSISDN)
+	fmt.Println("Message: " + incoming.Message)
+	fmt.Println("ExtraDigits: " + incoming.ExtraDigits)
+	*/
+    
 	// You must respond with a status code of 200 otherwise the API will keep retrying
 	// the message to this endpoint
 	w.Write([]byte("Ok"))
