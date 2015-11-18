@@ -168,6 +168,7 @@ type StatusResult struct {
 	DeliveredStatus            uint32    `json:"delivered_status,omitempty"`
 	DeliveredStatusDescription string    `json:"delivered_status_description,omitempty"`
 	DeliveredTimestamp         time.Time `json:"delivered_timestamp,omitempty"`
+	SmsParts                   uint32    `json:"sms_parts,omitempty"`
 	PostbackType               string    `json:"postback_type,omitempty"`
 }
 
