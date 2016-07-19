@@ -32,7 +32,8 @@ func main() {
 	//SampleSubmitMMS()
 	//SampleSubmitEmail()
 	//SampleGetMessageStatus()
-	
+	SampleSubmitPaymentReminder()	
+
 	// Sample server to handle incoming SMS
 	http.HandleFunc("/", HandleIncomingSMS)
 	http.HandleFunc("/status", HandleStatusUpdates)
@@ -70,7 +71,7 @@ func SampleSubmitSMS() {
 	// Create the message data
 	msgData := messagingapi.SubmitSMSMessageData{
 		Network: "local_smpp",
-		MSISDN: []string{"27760913077"},
+		MSISDN: []string{"277777"},
 		Message: "This is my SMS text",
 		ExtraDigits: "00123",
 	}
@@ -106,7 +107,7 @@ func SampleSubmitMMS() {
 		// Network '*' uses the portability list to determine
 		// the destination network
 		Network: "*",
-		MSISDN: []string{"27760913077"},
+		MSISDN: []string{"27777777"},
 		Subject: "MMS Subject",
 	}
 	
@@ -217,6 +218,42 @@ func HandleIncomingSMS(w http.ResponseWriter, r *http.Request) {
 	// You must respond with a status code of 200 otherwise the API will keep retrying
 	// the message to this endpoint
 	w.Write([]byte("Ok"))
+}
+
+// SampleSubmitPaymentReminder sends a payment reminder
+func SampleSubmitPaymentReminder() {
+
+	fmt.Println("Sending Payment Reminder")
+
+	buildRequest := messagingapi.BuildRequest{
+		MVNOID:           2,
+		Campaign:         "GoTest",
+		BuildTemplate:    15,
+		AfterBuildAction: messagingapi.APIActionTypesSubmitMMS,
+	}
+	buildRequest.Data = "{\"CustomerName\":\"John Doe\",\"AccountNumber\":\"AC0001\",\"AmountDue\":100.00}"
+	msgData := messagingapi.SubmitMMSMessageData{
+		// Network '*' uses the portability list to determine
+		// the destination network
+		Network: "*",
+		MSISDN:  []string{"270000000"},
+	}
+	buildRequest.AfterBuildData = msgData
+
+	result, err := api.Generate(buildRequest)
+	if err != nil {
+		fmt.Println("Error: " + err.Error())
+		os.Exit(1)
+	}
+
+	// Handle the result
+	if result.StatusCode != messagingapi.APIResultStatusesOk {
+		fmt.Println(result.StatusDescription)
+	} else {
+		fmt.Println("Success")
+		fmt.Println(result.MessageResult.MessageID)
+	}
+
 }
 
 

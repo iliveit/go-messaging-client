@@ -2,27 +2,26 @@
 package messagingapi
 
 import (
-	"time"	
+	"time"
 )
 
 // MessagingAPI is the primary object to work with the API
 type MessagingAPI struct {
 	config APIConfig
-	
-} 
+}
 
 // APIWebRequest handles all API communication
 type APIWebRequest struct {
-	config APIConfig 
-	Url string
+	config APIConfig
+	Url    string
 	Method string
-	Data string
+	Data   string
 }
 
 // APIConfig is the API configuration passed when creating new API instance
 type APIConfig struct {
-	Endpoint string
-    AccessToken string
+	Endpoint    string
+	AccessToken string
 }
 
 // NewMessage is the wrapper struct to submit a new message to the API
@@ -31,6 +30,8 @@ type NewMessage struct {
 	Action int
 	// The Operator this message belongs to
 	MVNOID int
+	// If part of an approval batch, the ID
+	ApprovalBatch uint32
 	// The data for that is required for building or submitting the message
 	Data interface{}
 	// The Campaign id for tracking purposes (optional)
@@ -43,21 +44,22 @@ type NewMessage struct {
 	// Possible values of "build", "submit", "archive", "sent", "delivery"
 	// comma delimited - i.e. "build,submit,delivery"
 	PostbackStatusTypes string
-	
+
 	Error string
 }
 
 // NewMessageResult is returned with all message submit requests
 type NewMessageResult struct {
-	 MessageID string
+	MessageID string
 }
 
 // APIResult is the result returned with any API request
 type APIResult struct {
-	StatusCode uint32
+	StatusCode        uint32
 	StatusDescription string
-	MessageResult NewMessageResult
-	MessageStatus StatusResult
+	MessageResult     NewMessageResult
+	MessageStatus     StatusResult
+	RequestResult     ApprovalRequestResult
 	//ScrubResult ScrubResult;
 	//ArchivedMessage ArchivedMessage;
 }
@@ -71,8 +73,8 @@ type WebRequestResponse struct {
 type SubmitMMSMessageData struct {
 	// The message type, 'mms' for MMS messages
 	MessageType string
-	MSISDN []string
-	Network string
+	MSISDN      []string
+	Network     string
 	// List of slides to use for the message
 	Slides []MMSSlide `json:"slides"`
 	// The MMS message subject
@@ -103,8 +105,8 @@ type MMSSlideContent struct {
 type SubmitSMSMessageData struct {
 	// The message type, 'mms' for MMS messages
 	MessageType string
-	MSISDN []string
-	Network string
+	MSISDN      []string
+	Network     string
 	// Message is the actual message content of the SMS
 	Message string `json:"text"`
 	// Extra digits to append to sender address, when allowed
@@ -115,30 +117,30 @@ type SubmitSMSMessageData struct {
 type SubmitEmailMessageData struct {
 	// The message type, 'mms' for MMS messages
 	MessageType string
-	Address []string `json:"address"`
-	MSISDN []string
-	Network string 
-	Subject string `json:"subject"`
-	HTML string `json:"html"`
-	Text string `json:"text"`
+	Address     []string `json:"address"`
+	MSISDN      []string
+	Network     string
+	Subject     string `json:"subject"`
+	HTML        string `json:"html"`
+	Text        string `json:"text"`
 }
 
-// IncomingSMS is the structure returned from the 
+// IncomingSMS is the structure returned from the
 // API for incoming SMS messages
 type IncomingSMS struct {
 	// The message ID assigned by the API when the SMS
 	// was submitted using Create()
 	MessageId string
 	// The MSISDN who sent the message
-    SourceMSISDN string
-    // The MSISDN the message was sent to
-    DestinationMSISDN string
-    // The SMS message
-    Message string
-    // The extra digits supplied when the message was submitted
-    ExtraDigits string
-    // The amount of times the message was retried to you
-    RetryCount uint32
+	SourceMSISDN string
+	// The MSISDN the message was sent to
+	DestinationMSISDN string
+	// The SMS message
+	Message string
+	// The extra digits supplied when the message was submitted
+	ExtraDigits string
+	// The amount of times the message was retried to you
+	RetryCount uint32
 }
 
 // StatusResult is returned from the API when message/:id/status
@@ -168,28 +170,79 @@ type StatusResult struct {
 	DeliveredStatus            uint32    `json:"delivered_status,omitempty"`
 	DeliveredStatusDescription string    `json:"delivered_status_description,omitempty"`
 	DeliveredTimestamp         time.Time `json:"delivered_timestamp,omitempty"`
-	SmsParts                   uint32    `json:"sms_parts,omitempty"`
 	PostbackType               string    `json:"postback_type,omitempty"`
 }
 
+// The person appprovals should be sent to
+type ApprovalPerson struct {
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	MSISDN string `json:"msisdn"`
+	// The user's unique hash, leave blank for autogenerate
+	Hash string `json:"hash,omitempty"`
+}
+
+// ApprovalRequest is the scrusture for creating approval batches
+type ApprovalRequest struct {
+	// The action type of the messages,
+	// either ActionSubmitMMS, ActionSubmitSMS or ActionSubmitEmail
+	ActionType uint32
+	MVNOID     uint32
+	Name       string
+	// Internal users to send approval messages to
+	InternalPeople []ApprovalPerson
+	// Clients to send approval messages to
+	ExternalPeople []ApprovalPerson
+	// The link to send with approval messages, leave blank to
+	// autogenerate
+	Link string `json:",omitempty"`
+	// If this is linked to another approval, the approvals
+	// will not be sent until all linked has been marked ready
+	LinkedApproval uint32 `json:"linked_approval,omitempty"`
+}
+
+// ApprovalRequestResult The result of the approval request
+type ApprovalRequestResult struct {
+	// The batch that was created
+	BatchID uint32
+}
+
+type ApprovalUpdateRequest struct {
+	// The batch ID to update
+	BatchID uint32
+	// State should be one of ApprovalRequestState*
+	State uint32
+	// CSV data for a report, blank if no needed
+	Report []string
+}
+
 const (
-	APIResultStatusesOk = 0
-	APIResultStatusesError = 1
-	APIResultStatusesAuthFailed = 2
+	ApprovalBatchStateWaitingData  = 1
+	ApprovalBatchStateDataReceived = 2
+	ApprovalBatchStateApprovalSent = 3
+	ApprovalBatchStateApproved     = 4
+	ApprovalBatchStateDeclined     = 5
+	ApprovalBatchStateSent         = 6
+)
+
+const (
+	APIResultStatusesOk            = 0
+	APIResultStatusesError         = 1
+	APIResultStatusesAuthFailed    = 2
 	APIResultStatusesInvalidMethod = 3
-	APIResultStatusesAPIError = 4
-	APIResultStatusesRateLimited = 5
+	APIResultStatusesAPIError      = 4
+	APIResultStatusesRateLimited   = 5
 )
 
 const (
-	APIActionTypesSubmitMMS = 1
-	APIActionTypesSubmitSMS = 2
+	APIActionTypesSubmitMMS   = 1
+	APIActionTypesSubmitSMS   = 2
 	APIActionTypesSubmitEmail = 3
-	APIActionTypesArchive = 4
+	APIActionTypesArchive     = 4
 )
 
 const (
-	MMSContentTypeText = "text"
+	MMSContentTypeText  = "text"
 	MMSContentTypeImage = "image"
 	MMSContentTypeVideo = "video"
 	MMSContentTypeAudio = "audio"
