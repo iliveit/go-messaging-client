@@ -120,9 +120,16 @@ type SubmitEmailMessageData struct {
 	Address     []string `json:"address"`
 	MSISDN      []string
 	Network     string
-	Subject     string `json:"subject"`
-	HTML        string `json:"html"`
-	Text        string `json:"text"`
+	Subject     string            `json:"subject"`
+	HTML        string            `json:"html"`
+	Text        string            `json:"text"`
+	Attachments []EmailAttachment `json:"attachments"`
+}
+
+// EmailAttachment holds the structure of the attachment data
+type EmailAttachment struct {
+	Filename string `json:"filename"`
+	Data     string `json:"data"`
 }
 
 // IncomingSMS is the structure returned from the
@@ -186,9 +193,10 @@ type ApprovalPerson struct {
 type ApprovalRequest struct {
 	// The action type of the messages,
 	// either ActionSubmitMMS, ActionSubmitSMS or ActionSubmitEmail
-	ActionType uint32
-	MVNOID     uint32
-	Name       string
+	ActionType   uint32
+	MVNOID       uint32
+	Name         string
+	MaxApprovals uint32
 	// Internal users to send approval messages to
 	InternalPeople []ApprovalPerson
 	// Clients to send approval messages to
@@ -235,10 +243,13 @@ const (
 )
 
 const (
-	APIActionTypesSubmitMMS   = 1
-	APIActionTypesSubmitSMS   = 2
-	APIActionTypesSubmitEmail = 3
-	APIActionTypesArchive     = 4
+	APIActionTypesSubmitMMS    = 1
+	APIActionTypesSubmitSMS    = 2
+	APIActionTypesSubmitEmail  = 3
+	APIActionTypesArchive      = 4
+	APIActionTypesArchiveMMS   = 8
+	APIActionTypesArchiveSMS   = 9
+	APIActionTypesArchiveEmail = 10
 )
 
 const (
