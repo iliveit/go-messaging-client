@@ -60,7 +60,7 @@ type APIResult struct {
 	MessageResult     NewMessageResult
 	MessageStatus     StatusResult
 	RequestResult     ApprovalRequestResult
-	//ScrubResult ScrubResult;
+	ScrubResult       ScrubResult
 	//ArchivedMessage ArchivedMessage;
 }
 
@@ -178,6 +178,22 @@ type StatusResult struct {
 	DeliveredStatusDescription string    `json:"delivered_status_description,omitempty"`
 	DeliveredTimestamp         time.Time `json:"delivered_timestamp,omitempty"`
 	PostbackType               string    `json:"postback_type,omitempty"`
+}
+
+type ScrubResult struct {
+	Network      string        `json:"network"`
+	MSISDN       string        `json:"msisdn"`
+	HandsetMake  string        `json:"handset_make"`
+	HandsetModel string        `json:"handset_model"`
+	AllowSend    string        `json:allow_send`
+	ScreenSize   ScreenSizeObj `json:"screen_size"`
+	ErrorCode    string        `json:"error_code"`
+	Error        string        `json:"error"`
+}
+
+type ScreenSizeObj struct {
+	Width  string `json:"width"`
+	Height string `json:"height"`
 }
 
 // The person appprovals should be sent to

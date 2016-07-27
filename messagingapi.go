@@ -241,3 +241,35 @@ func (api *MessagingAPI) Generate(request BuildRequest) (APIResult, error) {
 
 	return result, nil
 }
+
+// GetMSISDNScrub retrieves the MSISDN's handset information
+func (api *MessagingAPI) GetMSISDNScrub(msisdn string) (APIResult, error) {
+	result := APIResult{}
+
+	if msisdn == "" {
+		return result, errors.New("msisdn must not be blank")
+	}
+
+	r, err := NewAPIWebRequest(api.config, "scrub/"+msisdn, "GET", "")
+	if err != nil {
+		return result, err
+	}
+
+	responseBody, statusCode, err := r.Execute()
+	if err != nil {
+		result = HandleErrorResponse(result, statusCode, err)
+	} else {
+
+		var scrubres ScrubResult
+		err = json.Unmarshal([]byte(responseBody), &scrubres)
+		if err != nil {
+			result.StatusCode = APIResultStatusesError
+			result.StatusDescription = "Unable to unmarshal result from API"
+		}
+
+		result.ScrubResult = scrubres
+		result.StatusCode = APIResultStatusesOk
+		result.StatusDescription = "Ok"
+	}
+	return result, nil
+}
