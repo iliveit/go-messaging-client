@@ -237,7 +237,12 @@ type ApprovalUpdateRequest struct {
 	// State should be one of ApprovalRequestState*
 	State uint32
 	// CSV data for a report, blank if no needed
-	Report []string
+	Reports []CsvReport
+}
+
+type CsvReport struct {
+	Filename string
+	Lines    []string
 }
 
 const (

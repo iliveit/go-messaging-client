@@ -278,14 +278,28 @@ func SampleApprovalUpdate(batchId uint32) {
 	fmt.Println("Update an approval batch with report")
 
 	// Build the report as CSV line
-	var report []string
-	report = append(report, "this,is,a,line")
-	report = append(report, "what,is,my,time")
+	var reports []messagingapi.CsvReport
+
+	var reportDataA []string
+	reportDataA = append(reportDataA, "this,is,a,line")
+	reportDataA = append(reportDataA, "what,is,my,time")
+	reports = append(reports, messagingapi.CsvReport{
+		Filename: "Report A.csv",
+		Lines:    reportDataA,
+	})
+
+	var reportDataB []string
+	reportDataB = append(reportDataB, "Total,Col A,Col B")
+	reportDataB = append(reportDataB, "100 000,95 000,5 000")
+	reports = append(reports, messagingapi.CsvReport{
+		Filename: "Report B.csv",
+		Lines:    reportDataB,
+	})
 
 	updateRequest := messagingapi.ApprovalUpdateRequest{
 		BatchID: batchId,
 		State:   messagingapi.ApprovalBatchStateDataReceived,
-		Report:  report,
+		Reports:  reports,
 	}
 
 	result, err := api.UpdateApproval(updateRequest)
