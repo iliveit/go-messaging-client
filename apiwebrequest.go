@@ -47,6 +47,7 @@ func (r *APIWebRequest) Execute() (string, int, error) {
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer " + r.config.AccessToken)
 	req.ContentLength = int64(len(jsonBytes))
+	req.Close = true
 	
 	resp, err := client.Do(req)
 
