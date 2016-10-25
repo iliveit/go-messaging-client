@@ -44,6 +44,10 @@ type NewMessage struct {
 	// Possible values of "build", "submit", "archive", "sent", "delivery"
 	// comma delimited - i.e. "build,submit,delivery"
 	PostbackStatusTypes string
+	// This message should not be submitted before this date, format yyyy-mm-dd hh:mm
+	SubmitNotBefore string
+	// This message should not be submitted after this date, format yyyy-mm-dd hh:mm
+	SubmitNotAfter string
 
 	Error string
 }

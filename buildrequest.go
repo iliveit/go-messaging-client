@@ -31,6 +31,10 @@ type BuildRequest struct {
 	// Possible values of "build", "submit", "archive", "sent", "delivery"
 	// comma delimited - i.e. "build,submit,delivery"
 	PostBackStatusTypes string
+	// This message should not be submitted before this date, format yyyy-mm-dd hh:mm
+	SubmitNotBefore string
+	// This message should not be submitted after this date, format yyyy-mm-dd hh:mm
+	SubmitNotAfter string
 	// Error is the last error that occurred within Validate()
 	Error string
 }
