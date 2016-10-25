@@ -217,6 +217,8 @@ type ApprovalRequest struct {
 	MVNOID       uint32
 	Name         string
 	MaxApprovals uint32
+	// Set InSequence to true if you prefer approval messages to not be random
+	InSequence bool
 	// Internal users to send approval messages to
 	InternalPeople []ApprovalPerson
 	// Clients to send approval messages to
