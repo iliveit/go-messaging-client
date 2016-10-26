@@ -154,6 +154,20 @@ type IncomingSMS struct {
 	RetryCount uint32
 }
 
+// IncomingEmail is the structure returned from the
+// API for email reply messages
+type IncomingEmail struct {
+	// The message ID assigned by the API when the Email
+	// was submitted using Create()
+	MessageId string `json:"message_id"`
+	// The email address the message was sent to
+	Address string `json:"address"`
+	// The raw base64 of the entire email
+	ContentBase64 string `json:"content"`
+	// The amount of times the message was retried to you
+	RetryCount uint32
+}
+
 // StatusResult is returned from the API when message/:id/status
 // is called
 type StatusResult struct {
