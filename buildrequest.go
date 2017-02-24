@@ -18,6 +18,8 @@ type BuildRequest struct {
 	ApprovalBatch uint32
 	// BuildTemplate is the tempate to be used when building the message
 	BuildTemplate int
+	// BuildTemplateRef is the email template to be used when building the message
+	BuildTemplateRef string
 	// The action to be taken by the API after the message has been built
 	// Listed as APIActionTypes* constants
 	AfterBuildAction int
