@@ -52,6 +52,24 @@ type NewMessage struct {
 	Error string
 }
 
+// ResendMessageRequest is the structure for resending messages
+type ResendMessageRequest struct {
+	// The MessageID to resubmit
+	MessageID string
+	// The MSISDN to submit to
+	MSISDN string
+	// The email address to submit to
+	Email string
+	// PostbackStatusUrl is where status updates for this message should be POSTed (optional)
+	PostbackStatusUrl string
+	// What updates you want to receive in the postback
+	// Possible values of "build", "submit", "archive", "sent", "delivery"
+	// comma delimited - i.e. "build,submit,delivery"
+	PostbackStatusTypes string
+	// The last error
+	Error string
+}
+
 // NewMessageResult is returned with all message submit requests
 type NewMessageResult struct {
 	MessageID string

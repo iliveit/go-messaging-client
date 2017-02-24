@@ -109,6 +109,37 @@ func (api *MessagingAPI) Create(message NewMessage) (APIResult, error) {
 	return result, nil
 }
 
+// Resend resubmits a message
+func (api *MessagingAPI) Resend(resendRequest ResendMessageRequest) (APIResult, error) {
+	result := APIResult{}
+	jsonBytes, err := json.Marshal(resendRequest)
+	if err != nil {
+		return result, err
+	}
+
+	r, err := NewAPIWebRequest(api.config, "message/resend", "POST", string(jsonBytes))
+	if err != nil {
+		return result, err
+	}
+	responseBody, statusCode, err := r.Execute()
+	if err != nil {
+		result = HandleErrorResponse(result, statusCode, err)
+	} else {
+
+		var newMessageResult NewMessageResult
+		err = json.Unmarshal([]byte(responseBody), &newMessageResult)
+		if err != nil {
+			result.StatusCode = APIResultStatusesError
+			result.StatusDescription = "Unable to unmarshal result from API"
+		}
+		result.MessageResult = newMessageResult
+		result.StatusCode = APIResultStatusesOk
+		result.StatusDescription = "Ok"
+	}
+
+	return result, nil
+}
+
 // Create requests a new approval request to be submitted via the API
 func (api *MessagingAPI) CreateApproval(approvalRequest ApprovalRequest) (APIResult, error) {
 	result := APIResult{}

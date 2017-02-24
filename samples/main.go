@@ -6,7 +6,6 @@ import (
 	"os"
 	//"time"
 	"encoding/json"
-	"github.com/iliveit/go-messaging-client"
 	"net/http"
 )
 
@@ -33,22 +32,23 @@ func main() {
 	//SampleSubmitEmail()
 	//SampleGetMessageStatus()
 	//SampleSubmitPaymentReminder()
+	SampleResubmitMessage()
 
 	// You need to specify the type of message for the approval batch
-	batchId := SampleCreateApprovalBatch(messagingapi.APIActionTypesSubmitEmail)
+	//batchId := SampleCreateApprovalBatch(messagingapi.APIActionTypesSubmitEmail)
 	// Send some messages
-	SampleSubmitEmailWithApproval(batchId, "12345")
-	SampleSubmitEmailWithApproval(batchId, "abcde")
-	SampleSubmitEmailWithApproval(batchId, "1a2b3")
+	//SampleSubmitEmailWithApproval(batchId, "12345")
+	//SampleSubmitEmailWithApproval(batchId, "abcde")
+	//SampleSubmitEmailWithApproval(batchId, "1a2b3")
 	//SampleSubmitSMSWithApproval(batchId)
 	//SampleSubmitMMSWithApproval(batchId)
 	//SampleSubmitStatementWithApproval(batchId)
-	SampleApprovalUpdate(batchId)
+	//SampleApprovalUpdate(batchId)
 
 	// Sample server to handle incoming SMS
-	http.HandleFunc("/", HandleIncomingSMS)
-	http.HandleFunc("/status", HandleStatusUpdates)
-	http.ListenAndServe(":9001", nil)
+	//http.HandleFunc("/", HandleIncomingSMS)
+	//http.HandleFunc("/status", HandleStatusUpdates)
+	//http.ListenAndServe(":9001", nil)
 
 }
 
@@ -299,7 +299,7 @@ func SampleApprovalUpdate(batchId uint32) {
 	updateRequest := messagingapi.ApprovalUpdateRequest{
 		BatchID: batchId,
 		State:   messagingapi.ApprovalBatchStateDataReceived,
-		Reports:  reports,
+		Reports: reports,
 	}
 
 	result, err := api.UpdateApproval(updateRequest)
@@ -352,7 +352,27 @@ func SampleSubmitPaymentReminder() {
 	}
 }
 
-// SampleSubmitEmail shows how to submit an Email message using the client library
+// SampleResubmitMessage submits a message again
+func SampleResubmitMessage() {
+	resendRequest := messagingapi.ResendMessageRequest{
+		MessageID: "You message ID",
+		Email:     "none@example.com",
+	}
+	result, err := api.Resend(resendRequest)
+	if err != nil {
+		fmt.Println("Error: " + err.Error())
+		os.Exit(1)
+	}
+	// Handle the result
+	if result.StatusCode != messagingapi.APIResultStatusesOk {
+		fmt.Println(result.StatusDescription)
+	} else {
+		fmt.Println("Success")
+		fmt.Println(result.MessageResult.MessageID)
+	}
+}
+
+// SampleSubmitEmailWithApproval shows how to submit an Email message using the client library
 func SampleSubmitEmailWithApproval(batchId uint32, unique string) {
 	// Create the wrapper object
 	msg := messagingapi.NewMessage{
