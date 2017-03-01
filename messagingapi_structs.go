@@ -126,7 +126,7 @@ type MMSSlideContent struct {
 // SubmitSMSMessageData holds information for submitting an SMS
 type SubmitSMSMessageData struct {
 	// The message type, 'mms' for MMS messages
-	MessageType string
+	MessageType string `json:"message_type,omitempty"`
 	MSISDN      []string
 	Network     string
 	// Message is the actual message content of the SMS
@@ -138,7 +138,7 @@ type SubmitSMSMessageData struct {
 // SubmitEmailMessageData holds information for submitting an Email
 type SubmitEmailMessageData struct {
 	// The message type, 'mms' for MMS messages
-	MessageType string
+	MessageType string   `json:"message_type,omitempty"`
 	Address     []string `json:"address"`
 	MSISDN      []string
 	Network     string
