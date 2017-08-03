@@ -35,7 +35,7 @@ func NewAPIWebRequest(config APIConfig, url string, method string, data string) 
 // Execute the given request using the parameters from NewAPIWebRequest
 func (r *APIWebRequest) Execute() (string, int, error) {
 
-	timeout := time.Duration(time.Second * 10)
+	timeout := time.Duration(time.Second * 30)
 	transport := &http.Transport{}
 	client := &http.Client{
 		Transport: transport,
