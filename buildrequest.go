@@ -92,7 +92,7 @@ func (this *BuildRequest) Validate() error {
 		}
 
 	}
-	if this.BuildTemplate == 0 {
+	if this.BuildTemplate == 0 && this.BuildTemplateRef == "" {
 		err = errors.New("A build template must be selected")
 	}
 	return err
