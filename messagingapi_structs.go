@@ -145,6 +145,8 @@ type SubmitEmailMessageData struct {
 	Subject     string            `json:"subject"`
 	HTML        string            `json:"html"`
 	Text        string            `json:"text"`
+	FromName    string            `json:"fromname"`
+	ReplyTo     string            `json:"replyto"`
 	Attachments []EmailAttachment `json:"attachments"`
 }
 
